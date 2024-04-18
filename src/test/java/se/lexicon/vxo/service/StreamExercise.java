@@ -1,5 +1,6 @@
 package se.lexicon.vxo.service;
 
+
 import org.junit.jupiter.api.Test;
 import se.lexicon.vxo.model.Gender;
 import se.lexicon.vxo.model.Person;
@@ -10,6 +11,7 @@ import java.time.Period;
 import java.util.*;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -86,7 +88,9 @@ public class StreamExercise {
 
         //TODO:Write code here
 
-        dates = people.stream().map(Person::getDateOfBirth).collect(Collectors.toCollection(TreeSet::new));
+        dates = people.stream().
+                map(Person::getDateOfBirth)
+                .collect(Collectors.toCollection(TreeSet::new));
 
 
         assertNotNull(dates);
@@ -204,10 +208,12 @@ public class StreamExercise {
         double averageAge = 0;
 
         //TODO:Write code here
-        averageAge = people.stream().mapToInt(personToAge).average().orElse(0);
+        averageAge = people.stream().
+                mapToInt(personToAge)
+                .average().getAsDouble();
 
-        // I wrote this but it wanted me to use orElse() to check for error
-        // averageAge = people.stream().mapToInt(personToAge).average().getAsDouble();
+        // This is suggesting me to use orElseThrow  because getAsDouble() can result in null error
+
 
         assertTrue(averageAge > 0);
         assertEquals(expected, averageAge, .01);
@@ -225,7 +231,7 @@ public class StreamExercise {
         //TODO:Write code here
         result = people.stream()
                 .filter(person -> new StringBuilder(person.getFirstName()).reverse().toString().equalsIgnoreCase(person.getFirstName()))
-                .map(person -> person.getFirstName())
+                .map(Person::getFirstName)
                 .distinct()
                 .sorted()
                 .toArray(String[]::new);
@@ -243,7 +249,7 @@ public class StreamExercise {
         Map<String, List<Person>> personMap = null;
 
         //TODO:Write code here
-
+        personMap = people.stream().collect(Collectors.groupingBy(Person::getLastName));
 
         assertNotNull(personMap);
         assertEquals(expectedSize, personMap.size());
@@ -257,8 +263,13 @@ public class StreamExercise {
         LocalDate[] _2020_dates = null;
 
         //TODO:Write code here
+        LocalDate date = LocalDate.of(2020, 01, 01);
+        _2020_dates = Stream.iterate(date, d -> d.isBefore(LocalDate.of(2021, 01, 01)), d -> d.plusDays(1))
+                .toArray(LocalDate[]::new);
 
-
+        //Stream.iterate(a, b, c) takes a seed 'a' and continually produces an output according to some logic 'c'
+        //until hasNext on the condition 'b' fails and returns false
+        //'a' and 'c' must be of the same data type while 'b' not necessarily so
         assertNotNull(_2020_dates);
         assertEquals(366, _2020_dates.length);
         assertEquals(LocalDate.parse("2020-01-01"), _2020_dates[0]);
